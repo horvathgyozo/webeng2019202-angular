@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { IssueService } from '../issue.service';
 import { Issue } from '../issue';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-issue-detail',
@@ -14,12 +15,18 @@ export class IssueDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private issueService: IssueService
+    private issueService: IssueService,
+    private location: Location
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id');
-    this.issue = this.issueService.getIssue(id);
+    this.issue = await this.issueService.getIssue(id);
+  }
+
+  async handleDelete() {
+    await this.issueService.deleteIssue(this.issue.id);
+    this.location.back();
   }
 
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Issue } from '../issue';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IssueService } from '../issue.service';
 import { Location } from '@angular/common';
 
@@ -17,18 +17,26 @@ export class IssueEditComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private issueService: IssueService,
-    private location: Location
+    private location: Location,
+    private router: Router
   ) { }
 
-  ngOnInit(): void {
-    const id = +this.route.snapshot.paramMap.get('id');
-    this.id = id;
-    this.issue = this.issueService.getIssue(id);
+  async ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.id = +id;
+      this.issue = await this.issueService.getIssue(this.id);
+    }
   }
 
-  handleSave(formData) {
-    this.issueService.updateIssue(this.id, formData);
-    this.location.back();
+  async handleSave(formData) {
+    if (this.id) {
+      await this.issueService.updateIssue(this.id, formData);
+      this.location.back();
+    } else {
+      await this.issueService.addIssue(formData);
+      this.router.navigate(['issues']);
+    }
   }
 
 }
